@@ -1,100 +1,96 @@
-import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+// import java.util.Scanner;
 
-// ---------------- Entity Classes -----------------
-class Voter implements Serializable {
-    private String voterId;
-    private String password;
-    private boolean hasVoted;
+// ---------------- Voter Class -----------------
+class Voter {
+    String voterId;
+    String password;
+    boolean hasVoted;
 
-    public Voter(String voterId, String password) {
+    Voter(String voterId, String password) {
         this.voterId = voterId;
         this.password = password;
         this.hasVoted = false;
     }
-
-    public String getVoterId() { return voterId; }
-    public String getPassword() { return password; }
-    public boolean hasVoted() { return hasVoted; }
-    public void setVoted(boolean voted) { this.hasVoted = voted; }
 }
 
-class Candidate implements Serializable {
-    private String name;
-    private String party;
-    private int votes;
+// ---------------- Candidate Class -----------------
+class Candidate {
+    String name;
+    String party;
+    int votes;
 
-    public Candidate(String name, String party) {
+    Candidate(String name, String party) {
         this.name = name;
         this.party = party;
         this.votes = 0;
     }
-
-    public String getName() { return name; }
-    public String getParty() { return party; }
-    public int getVotes() { return votes; }
-    public void addVote() { votes++; }
 }
 
-// ---------------- Manager Class -----------------
+// ---------------- Election Manager -----------------
 class ElectionManager {
-    private List<Voter> voters = new ArrayList<>();
-    private List<Candidate> candidates = new ArrayList<>();
+    ArrayList<Voter> voters = new ArrayList<>();
+    ArrayList<Candidate> candidates = new ArrayList<>();
 
-    public ElectionManager() {
-        // Gujarati names with Indian parties
-        candidates.add(new Candidate("Narendra Patel", "Bharatiya Janata Party (BJP)"));
-        candidates.add(new Candidate("Rameshbhai Desai", "Indian National Congress (INC)"));
-        candidates.add(new Candidate("Jignesh Mehta", "Aam Aadmi Party (AAP)"));
-        candidates.add(new Candidate("Manish Shah", "Nationalist Congress Party (NCP)"));
+    ElectionManager() {
+        // Gujarati names and Indian parties
+        candidates.add(new Candidate("Narendra Patel", "BJP"));
+        candidates.add(new Candidate("Rameshbhai Desai", "INC"));
+        candidates.add(new Candidate("Jignesh Mehta", "AAP"));
+        candidates.add(new Candidate("Manish Shah", "NCP"));
         candidates.add(new Candidate("Kiranben Joshi", "Independent"));
     }
 
-    // Register voter
-    public void registerVoter(String id, String pass) throws Exception {
+    void registerVoter(String id, String pass) {
         for (Voter v : voters) {
-            if (v.getVoterId().equals(id)) {
-                throw new Exception("User already exists!");
+            if (v.voterId.equals(id)) {
+                System.out.println("❌ User already exists!");
+                return;
             }
         }
         voters.add(new Voter(id, pass));
         System.out.println("✅ Registration successful!");
     }
 
-    // Login voter
-    public Voter login(String id, String pass) throws Exception {
+    Voter login(String id, String pass) {
         for (Voter v : voters) {
-            if (v.getVoterId().equals(id) && v.getPassword().equals(pass)) {
+            if (v.voterId.equals(id) && v.password.equals(pass)) {
+                System.out.println("✅ Login successful!");
                 return v;
             }
         }
-        throw new Exception("❌ Invalid credentials!");
+        System.out.println("❌ Invalid credentials!");
+        return null;
     }
 
-    // Cast vote
-    public void vote(Voter voter, int choice) throws Exception {
-        if (voter.hasVoted()) {
-            throw new Exception("❌ You have already voted!");
+    void vote(Voter voter, int choice) {
+        if (voter.hasVoted) {
+            System.out.println("❌ You have already voted!");
+            return;
         }
         if (choice < 1 || choice > candidates.size()) {
-            throw new Exception("❌ Invalid candidate choice!");
+            System.out.println("❌ Invalid choice!");
+            return;
         }
-        candidates.get(choice - 1).addVote();
-        voter.setVoted(true);
+        candidates.get(choice - 1).votes++;
+        voter.hasVoted = true;
         System.out.println("✅ Vote cast successfully!");
     }
 
-    // Display results
-    public void showResults() {
+    void showResults() {
         System.out.println("\n📊 Election Results:");
         for (Candidate c : candidates) {
-            System.out.println(c.getName() + " (" + c.getParty() + ") → " + c.getVotes() + " votes");
+            System.out.println(c.name + " (" + c.party + ") → " + c.votes + " votes");
         }
     }
 
-    // getter for candidates
-    public List<Candidate> getCandidates() {
-        return candidates;
+    void showCandidates() {
+        System.out.println("Candidates:");
+        int i = 1;
+        for (Candidate c : candidates) {
+            System.out.println(i + ". " + c.name + " (" + c.party + ")");
+            i++;
+        }
     }
 }
 
@@ -113,57 +109,48 @@ public class project {
             System.out.println("4. Results");
             System.out.println("5. Exit");
             System.out.print("Enter choice: ");
-            
+
             int choice = sc.nextInt();
             sc.nextLine(); // consume newline
 
-            try {
-                switch (choice) {
-                    case 1:
-                        System.out.print("Enter Voter ID: ");
-                        String id = sc.nextLine();
-                        System.out.print("Enter Password: ");
-                        String pass = sc.nextLine();
-                        manager.registerVoter(id, pass);
-                        break;
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Voter ID: ");
+                    String id = sc.nextLine();
+                    System.out.print("Enter Password: ");
+                    String pass = sc.nextLine();
+                    manager.registerVoter(id, pass);
+                    break;
 
-                    case 2:
-                        System.out.print("Enter Voter ID: ");
-                        id = sc.nextLine();
-                        System.out.print("Enter Password: ");
-                        pass = sc.nextLine();
-                        loggedIn = manager.login(id, pass);
-                        System.out.println("✅ Login successful!");
-                        break;
+                case 2:
+                    System.out.print("Enter Voter ID: ");
+                    id = sc.nextLine();
+                    System.out.print("Enter Password: ");
+                    pass = sc.nextLine();
+                    loggedIn = manager.login(id, pass);
+                    break;
 
-                    case 3:
-                        if (loggedIn == null) {
-                            System.out.println("⚠ Please login first!");
-                        } else {
-                            System.out.println("Candidates:");
-                            int i = 1;
-                            for (Candidate c : manager.getCandidates()) {
-                                System.out.println(i++ + ". " + c.getName() + " (" + c.getParty() + ")");
-                            }
-                            System.out.print("Enter your choice: ");
-                            int voteChoice = sc.nextInt();
-                            manager.vote(loggedIn, voteChoice);
-                        }
-                        break;
+                case 3:
+                    if (loggedIn == null) {
+                        System.out.println("⚠ Please login first!");
+                    } else {
+                        manager.showCandidates();
+                        System.out.print("Enter candidate number to vote: ");
+                        int voteChoice = sc.nextInt();
+                        manager.vote(loggedIn, voteChoice);
+                    }
+                    break;
 
-                    case 4:
-                        manager.showResults();
-                        break;
+                case 4:
+                    manager.showResults();
+                    break;
 
-                    case 5:
-                        System.out.println("Exiting... Goodbye!");
-                        System.exit(0);
+                case 5:
+                    System.out.println("Exiting... Goodbye!");
+                    System.exit(0);
 
-                    default:
-                        System.out.println("❌ Invalid choice, try again!");
-                }
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
+                default:
+                    System.out.println("❌ Invalid choice, try again!");
             }
         }
     }
